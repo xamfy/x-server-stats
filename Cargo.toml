@@ -1,0 +1,42 @@
+[package]
+name = "server_stats"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+edition = "2021"
+name = "server_stats_release" # This is the name of the binary, need to check if it makes sense to add release version.
+path = "src/main.rs"
+
+# https://github.com/johnthagen/min-sized-rust
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+codegen-units = 1
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+#config = "0.13.1"
+config = "0.12"
+deadpool-postgres = { version = "0.10.2", features = ["serde"] }
+derive_more = "0.99.17"
+dotenv = "0.15.0"
+serde = { version = "1.0.137", features = ["derive"] }
+#serde_json = "1.0"
+tokio-pg-mapper = "0.2.0"
+tokio-pg-mapper-derive = "0.2.0"
+tokio-postgres = { version = "0.7.6", features = ["with-chrono-0_4"] }
+chrono = { version = "0.4.22", features = ["serde"] }
+askama = { version = "0.11.1", features = ["with-actix-web"] }
+askama_actix = "0.13.0"
+env_logger = "0.9.1"
+log = "0.4.17"
+strum_macros = "0.24.1"
+strum = { version = "0.24.1", features = ["derive"]}
+minify = "1.2"
+actix-governor = "0.3" # https://github.com/AaronErhardt/actix-governor
+actix-web-lab = "0.18.2" # https://crates.io/crates/actix-web-lab
+systemstat = "0.2.0"
