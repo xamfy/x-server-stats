@@ -1677,32 +1677,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "server_stats"
-version = "0.1.0"
-dependencies = [
- "actix-governor",
- "actix-web",
- "actix-web-lab",
- "askama",
- "askama_actix",
- "chrono",
- "config",
- "deadpool-postgres",
- "derive_more",
- "dotenv",
- "env_logger",
- "log",
- "minify",
- "serde",
- "strum",
- "strum_macros",
- "systemstat",
- "tokio-pg-mapper",
- "tokio-pg-mapper-derive",
- "tokio-postgres",
-]
-
-[[package]]
 name = "sha1"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2238,6 +2212,32 @@ name = "windows_x86_64_msvc"
 version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c811ca4a8c853ef420abd8592ba53ddbbac90410fab6903b3e79972a631f7680"
+
+[[package]]
+name = "x-server-stats"
+version = "0.1.0"
+dependencies = [
+ "actix-governor",
+ "actix-web",
+ "actix-web-lab",
+ "askama",
+ "askama_actix",
+ "chrono",
+ "config",
+ "deadpool-postgres",
+ "derive_more",
+ "dotenv",
+ "env_logger",
+ "log",
+ "minify",
+ "serde",
+ "strum",
+ "strum_macros",
+ "systemstat",
+ "tokio-pg-mapper",
+ "tokio-pg-mapper-derive",
+ "tokio-postgres",
+]
 
 [[package]]
 name = "yaml-rust"

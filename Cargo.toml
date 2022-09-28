@@ -1,19 +1,23 @@
 [package]
-name = "server_stats"
+name = "x-server-stats"
+description = "A simple web server to display server stats over HTTP and Websockets" 
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.64.0"
+homepage = "https://github.com/xamfy/x-server-status"
+license = "Apache-2.0"
 
 [[bin]]
 edition = "2021"
-name = "server_stats_release" # This is the name of the binary, need to check if it makes sense to add release version.
+name = "x-server-stats" # This is the name of the binary, need to check if it makes sense to add release version.
 path = "src/main.rs"
 
 # https://github.com/johnthagen/min-sized-rust
 [profile.release]
-strip = true  # Automatically strip symbols from the binary.
-opt-level = "z"  # Optimize for size.
-lto = true
-codegen-units = 1
+# strip = true  # Automatically strip symbols from the binary.
+# opt-level = "z"  # Optimize for size.
+# lto = true
+# codegen-units = 1
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
