@@ -53,3 +53,5 @@ $ cargo run --release
 ##### Request throttling
 x-server-stats uses actix-governor to throttle incoming requests based on IP address.
 The config is present at `src/main.rs` and can be changed accordingly.
+Throttling is important if you don't want to overwhelm the server with too many requests by internal systems.
+We plan to make this configurable in the future, so you don't have build from source to change the config.
