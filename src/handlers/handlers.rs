@@ -12,6 +12,7 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::{saturating_sub_bytes, Platform, System};
+use systemstat::platform::PlatformImpl;
 
 #[derive(Template)] // this will generate the code...
 #[template(path = "index.html")] // using the template in this path, relative
@@ -20,23 +21,7 @@ struct StatsTemplate {
     stats: Stats,
 }
 
-pub async fn get_stats_from_linux() -> Stats {
-    let stats = Stats {
-        loadavg: "1.0".to_string(),
-        cpu_usage: "2.0".to_string(),
-        memory_usage: "3.0".to_string(),
-    };
-
-    return stats;
-}
-
-#[get("")]
-pub async fn index_page(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
-    // parameter for this method - req: &HttpRequest
-    // println!("{:?}", req);
-
-    let sys = System::new();
-
+pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
     match sys.cpu_load_aggregate() {
         Ok(cpu) => {
             println!("\nMeasuring CPU load...");
@@ -50,21 +35,54 @@ pub async fn index_page(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error>
                 cpu.interrupt * 100.0,
                 cpu.idle * 100.0
             );
+
+            let cpu_usage = format!(
+                "CPU load: {}% user, {}% nice, {}% system, {}% intr, {}% idle ",
+                cpu.user * 100.0,
+                cpu.nice * 100.0, // TG :cpu load nice
+                cpu.system * 100.0,
+                cpu.interrupt * 100.0,
+                cpu.idle * 100.0
+            );
+
+            let stats = Stats {
+                loadavg: "1.0".to_string(),
+                cpu_usage,
+                memory_usage: "3.0".to_string(),
+            };
+
+            return stats;
         }
         Err(x) => println!("\nCPU load: error: {}", x),
     }
+
+    let stats = Stats {
+        loadavg: "Error".to_string(),
+        cpu_usage: "Error".to_string(),
+        memory_usage: "Error".to_string(),
+    };
+
+    return stats;
+}
+
+#[get("")]
+pub async fn index_page(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
+    // parameter for this method - req: &HttpRequest
+    // println!("{:?}", req);
+
+    let sys = System::new();
 
     match sys.cpu_temp() {
         Ok(cpu_temp) => println!("\nCPU temp: {}", cpu_temp),
         Err(x) => println!("\nCPU temp: {}", x),
     }
 
-    let stats: Stats = get_stats_from_linux().await;
-    // println!("{:?}", stats);
+    let stats: Stats = get_stats_from_linux(sys).await;
+    println!("{:?}", stats);
 
-    let hello = StatsTemplate { stats }; // instantiate your struct
+    let stats_html = StatsTemplate { stats }; // instantiate your struct
 
-    let html_str = minify(&hello.render().unwrap());
+    let html_str = minify(&stats_html.render().unwrap());
 
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/html; charset=utf-8")

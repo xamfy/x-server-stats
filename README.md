@@ -48,3 +48,8 @@ $ cargo run --release
 ```
 
 
+### Features
+
+##### Request throttling
+x-server-stats uses actix-governor to throttle incoming requests based on IP address.
+The config is present at `src/main.rs` and can be changed accordingly.
