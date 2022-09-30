@@ -1,7 +1,7 @@
 [package]
 name = "x-server-stats"
 description = "A simple web server to display server stats over HTTP and Websockets" 
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.64.0"
 homepage = "https://github.com/xamfy/x-server-stats"
