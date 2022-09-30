@@ -9,6 +9,27 @@ A simple web server(and library) to display server stats over HTTP and Websocket
 $ cargo install x-server-stats
 ```
 
+##### Installing Rust
+
+You can install Rust by following the instructions from the rust lang [website](https://www.rust-lang.org/tools/install).
+The command to install rust using bash looks like below on the website, it's always advisable to follow the instructions on the official website.
+We don't recommend using the command below as it may not be the latest version and other repos can have malicious bash script as well.
+
+```bash
+# Just for reference, please always head over to the official website for the instructions.
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+##### Install PostgreSQL 14
+
+You can install PostgreSQL 14 by following the instructions from the PostgreSQL [website](https://www.postgresql.org/download/).
+We use PostgreSQL 14 for the database, you can use any other databases as well, but we don't provide any support for other databases as of now(please raise an issue if you have a usecase for some other database).
+
+```bash
+# Just for reference, please always head over to the official homebrew/postgres website for the instructions for your OS.
+$ brew install postgresql@14
+```
+
 ##### Setting up environment variables
 
 You need to export below environment variables to run the server.
@@ -49,6 +70,9 @@ $ cargo run --release
 
 
 ### Features
+
+##### Web page for server stats
+TODO - Need to work on this. The web page will be built using just HTML, CSS, JS with the whole page under 14KB gzipped and minified(due to initcwnd of TCP on linux servers).
 
 ##### Request throttling
 x-server-stats uses actix-governor to throttle incoming requests based on IP address.
