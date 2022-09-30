@@ -45,7 +45,7 @@ pub async fn index_page(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error>
             println!(
                 "CPU load: {}% user, {}% nice, {}% system, {}% intr, {}% idle ",
                 cpu.user * 100.0,
-                cpu.nice * 100.0,
+                cpu.nice * 100.0, // TG :cpu load nice
                 cpu.system * 100.0,
                 cpu.interrupt * 100.0,
                 cpu.idle * 100.0

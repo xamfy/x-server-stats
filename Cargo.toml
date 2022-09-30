@@ -4,8 +4,10 @@ description = "A simple web server to display server stats over HTTP and Websock
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.64.0"
-homepage = "https://github.com/xamfy/x-server-status"
+homepage = "https://github.com/xamfy/x-server-stats"
 license = "Apache-2.0"
+readme = "README.md"
+# authors = ["xamfy <>"]
 
 [[bin]]
 edition = "2021"
@@ -44,3 +46,6 @@ minify = "1.2"
 actix-governor = "0.3" # https://github.com/AaronErhardt/actix-governor
 actix-web-lab = "0.18.2" # https://crates.io/crates/actix-web-lab
 systemstat = "0.2.0"
+
+nats = "0.23.0" #https://github.com/nats-io/nats.rs
+kafka = "0.9" #https://github.com/kafka-rust/kafka-rust
