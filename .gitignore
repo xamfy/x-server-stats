@@ -4,3 +4,4 @@ debug/
 .idea/
 **/*.rs.bk
 *.pdb
+Dockerfile

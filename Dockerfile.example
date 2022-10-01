@@ -10,6 +10,15 @@ FROM gcr.io/distroless/cc-debian10
 
 COPY --from=build /usr/local/cargo/bin/x-server-stats /usr/local/bin/x-server-stats
 
+ENV SERVER_ADDR=0.0.0.0:8082
+ENV PG__USER=PG_USERNAME
+ENV PG__PASSWORD=PG_PASSWORD
+ENV PG__HOST=PG_HOST_URL
+ENV PG__PORT=5432
+ENV PG__DBNAME=PG_DB_NAME
+ENV PG__POOL__MAX_SIZE=20
+ENV BASE_ADDR=http://0.0.0.0:8082
+
 EXPOSE 8082
 
-CMD ["x-server-stats"]
+CMD ["./usr/local/bin/x-server-stats"]
