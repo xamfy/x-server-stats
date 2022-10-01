@@ -1,7 +1,7 @@
 use actix_web::http::StatusCode;
-use actix_web::{get, post, web, Error, HttpResponse};
+use actix_web::{get, web, Error, HttpResponse};
 use askama::Template;
-use deadpool_postgres::{Client, Pool};
+use deadpool_postgres::{Pool};
 use minify::html::minify;
 
 use crate::Stats;
@@ -11,7 +11,7 @@ extern crate minify;
 extern crate systemstat;
 use std::thread;
 use std::time::Duration;
-use systemstat::{saturating_sub_bytes, Platform, System};
+use systemstat::{Platform, System};
 use systemstat::platform::PlatformImpl;
 
 #[derive(Template)] // this will generate the code...
@@ -56,17 +56,15 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
         Err(x) => println!("\nCPU load: error: {}", x),
     }
 
-    let stats = Stats {
+   Stats {
         loadavg: "Error".to_string(),
         cpu_usage: "Error".to_string(),
         memory_usage: "Error".to_string(),
-    };
-
-    return stats;
+    }
 }
 
 #[get("")]
-pub async fn index_page(db_pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
+pub async fn index_page() -> Result<HttpResponse, Error> {
     // parameter for this method - req: &HttpRequest
     // println!("{:?}", req);
 
