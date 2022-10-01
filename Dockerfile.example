@@ -1,3 +1,6 @@
+# https://dev.to/sergeyzenchenko/actix-web-in-docker-how-to-build-small-and-secure-images-2mjd
+# apply environment variables in the Dockerfile: https://stackoverflow.com/questions/39597925/how-do-i-set-environment-variables-during-the-build-in-docker
+
 FROM rust:1.64.0 as build
 ENV PKG_CONFIG_ALLOW_CROSS=1
 
