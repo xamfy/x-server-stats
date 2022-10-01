@@ -68,6 +68,15 @@ You can run the application directly by running the following command:
 $ cargo run --release
 ```
 
+##### Running the application with Docker
+
+First copy the `Dockerfile.example` file to `Dockerfile` and fill in the environment variables. Then run the below commands to build and run the Docker image.
+
+```bash
+$ docker build -t x-server-stats .
+$ docker run -p 8082:8082 x-server-stats
+```
+
 
 ### Features
 
