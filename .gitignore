@@ -5,3 +5,9 @@ debug/
 **/*.rs.bk
 *.pdb
 Dockerfile
+
+# Ignore rust-to-npm build artifacts
+package.json
+pre-install.js
+start.js
+uninstall.js

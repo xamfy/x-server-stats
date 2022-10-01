@@ -9,6 +9,16 @@ A simple web server(and library) to display server stats over HTTP and Websocket
 $ cargo install x-server-stats
 ```
 
+##### Installing via npm
+
+You can also install x-server-stats via npm, the npm install command will install rust and the x-server-stats binary in your path.
+This is useful if you want to get started quickly via npm. But we recommend to go with the cargo install command.
+The npm package is called `rust-x-server-stats`
+
+```bash
+$ npm install -g rust-x-server-stats
+```
+
 ##### Installing Rust
 
 You can install Rust by following the instructions from the rust lang [website](https://www.rust-lang.org/tools/install).
