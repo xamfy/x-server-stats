@@ -1,0 +1,29 @@
+
+{
+  "name": "rust-x-server-stats",
+  "version": "0.1.1",
+  "description": "A simple web server to display server stats over HTTP and Websockets",
+  "main": "start.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ./pre-install.js",
+    "uninstall": "node ./uninstall.js"
+  },
+  
+  "keywords": [],
+  
+  "license": "Apache-2.0",
+  
+  "homepage": "https://github.com/xamfy/x-server-stats",
+  "files": [
+    "pre-install.js",
+    "start.js",
+    "uninstall.js",
+    "README.md",
+    "LICENSE"
+  ]
+}
+    

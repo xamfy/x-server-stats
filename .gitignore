@@ -6,8 +6,14 @@ debug/
 *.pdb
 Dockerfile
 
-# Ignore rust-to-npm build artifacts
-package.json
-pre-install.js
-start.js
-uninstall.js
+# Ignore rust-to-npm build artifacts in the root directory
+/package.json
+/pre-install.js
+/start.js
+/uninstall.js
+
+# Don't ignore the rust-to-npm files in the subdirectories
+!*/package.json
+!*/pre-install.js
+!*/start.js
+!*/uninstall.js
