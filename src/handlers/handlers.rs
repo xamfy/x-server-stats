@@ -7,10 +7,17 @@ use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
 use actix_web::{get, Error, HttpResponse, Responder};
 use actix_web_lab::__reexports::serde_json;
+use actix_web::{get, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use askama::Template;
 use core::fmt;
 use minify::html::minify;
 use std::fmt::Display;
+
+
+use actix::{Actor, StreamHandler};
+use actix_web_actors::ws;
+
+use crate::Stats;
 
 extern crate minify;
 
@@ -241,3 +248,36 @@ pub fn check_whether_key(mem: &Memory, key: &str) -> String {
     };
     return d;
 }
+
+/**
+==============================
+     WebSocket Endpoints
+==============================
+ */
+
+/// Define HTTP actor
+struct MyWs;
+
+impl Actor for MyWs {
+    type Context = ws::WebsocketContext<Self>;
+}
+
+/// Handler for ws::Message message
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
+        match msg {
+            Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
+            Ok(ws::Message::Text(text)) => ctx.text(text),
+            Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
+            _ => (),
+        }
+    }
+}
+
+#[get("/ws")]
+pub async fn ws_stats_index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+    let resp = ws::start(MyWs {}, &req, stream);
+    println!("{:?}", resp);
+    resp
+}
+
