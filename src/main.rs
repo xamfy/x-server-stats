@@ -14,7 +14,7 @@ use dotenv::dotenv;
 use handlers::index_page;
 use tokio_postgres::NoTls;
 
-use crate::config::ServerConfig;
+use crate::{config::ServerConfig, handlers::status_get_api};
 
 use stats::Stats;
 
@@ -56,6 +56,7 @@ async fn main() -> std::io::Result<()> {
             // Enable Governor middleware
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(pool.clone()))
+            .service(status_get_api)
             .service(web::scope("/stats").configure(scoped_config))
             .service(web_lab::Redirect::new(
                 "/",
