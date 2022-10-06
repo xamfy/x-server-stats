@@ -23,6 +23,10 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
     cfg.service(index_page);
 }
 
+fn api_scoped_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(status_get_api);
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
@@ -57,7 +61,7 @@ async fn main() -> std::io::Result<()> {
             // Enable Governor middleware
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(pool.clone()))
-            .service(status_get_api)
+            .service(web::scope("/api").configure(api_scoped_config))
             .service(web::scope("/stats").configure(scoped_config))
             .service(web_lab::Redirect::new(
                 "/",
