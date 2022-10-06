@@ -14,7 +14,8 @@ use dotenv::dotenv;
 use handlers::index_page;
 use tokio_postgres::NoTls;
 
-use crate::{config::ServerConfig, handlers::status_get_api};
+use crate::config::ServerConfig;
+use crate::handlers::status_get_api;
 
 use stats::Stats;
 
