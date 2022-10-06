@@ -197,6 +197,12 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
     }
 }
 
+/**
+==============================
+     HTML Endpoints
+==============================
+ */
+
 #[get("")]
 pub async fn index_page() -> Result<HttpResponse, Error> {
     let sys = System::new();
@@ -280,4 +286,11 @@ pub async fn ws_stats_index(req: HttpRequest, stream: web::Payload) -> Result<Ht
     println!("{:?}", resp);
     resp
 }
+
+/**
+==============================
+        SSE Endpoints
+==============================
+ */
+
 
