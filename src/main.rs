@@ -15,11 +15,16 @@ use handlers::index_page;
 use tokio_postgres::NoTls;
 
 use crate::config::ServerConfig;
+use crate::handlers::status_get_api;
 
 use stats::Stats;
 
 fn scoped_config(cfg: &mut web::ServiceConfig) {
     cfg.service(index_page);
+}
+
+fn api_scoped_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(status_get_api);
 }
 
 #[actix_web::main]
@@ -56,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             // Enable Governor middleware
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(pool.clone()))
+            .service(web::scope("/api").configure(api_scoped_config))
             .service(web::scope("/stats").configure(scoped_config))
             .service(web_lab::Redirect::new(
                 "/",

@@ -10,3 +10,9 @@ pub struct Stats {
     pub memory_usage: String,
     // pub current_system_time: NaiveDateTime,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct StatsResponse {
+    pub result: bool,
+    pub data: Stats,
+}
