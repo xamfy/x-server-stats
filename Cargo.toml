@@ -49,3 +49,4 @@ systemstat = "0.2.0"
 
 nats = "0.23.0" #https://github.com/nats-io/nats.rs
 kafka = "0.9" #https://github.com/kafka-rust/kafka-rust
+
