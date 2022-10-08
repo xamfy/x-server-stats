@@ -26,7 +26,7 @@ impl Display for Loadavg {
 
 impl Display for MemoryWrapper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Memory")
+        write!(f, "{:?}", self.memory_usage)
     }
 }
 
