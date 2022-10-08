@@ -1,17 +1,13 @@
+use crate::stats::{Loadavg, MemoryWrapper, StatsResponse};
+use crate::Stats;
 use actix_web::body::BoxBody;
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
 use actix_web::{get, Error, HttpResponse, Responder};
 use actix_web_lab::__reexports::serde_json;
 use askama::Template;
+use core::fmt;
 use minify::html::minify;
-use std::{
-    convert::{TryFrom, TryInto},
-    io, path,
-};
-
-use crate::stats::{Loadavg, StatsResponse};
-use crate::Stats;
 
 extern crate minify;
 
@@ -19,7 +15,19 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{LoadAverage, Memory, Platform, System};
+use systemstat::{ByteSize, LoadAverage, Memory, Platform, PlatformMemory, System};
+
+impl fmt::Display for Loadavg {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Load avg: ")
+    }
+}
+
+impl fmt::Display for MemoryWrapper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "mem ")
+    }
+}
 
 #[derive(Template)] // this will generate the code...
 #[template(path = "index.html")] // using the template in this path, relative
@@ -53,7 +61,11 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                     five: load.five,
                     fifteen: load.fifteen,
                 },
-                Err(err) => panic!("Error: {:?}", err),
+                Err(_) => Loadavg {
+                    one: 0.0,
+                    five: 0.0,
+                    fifteen: 0.0,
+                },
             };
 
             let memory_details = match sys.memory() {
@@ -78,11 +90,13 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                 cpu.interrupt * 100.0,
                 cpu.idle * 100.0
             );
-
+            // memory_details
             let stats = Stats {
                 loadavg: load_avg,
                 cpu_usage,
-                memory_usage: memory_details,
+                memory_usage: MemoryWrapper {
+                    memory_usage: memory_details,
+                },
             };
 
             return stats;
@@ -94,23 +108,41 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
         five: 0.0,
         fifteen: 0.0,
     };
-    // Stats {
-    //     loadavg: Loadavg {
-    //         one: 0.0,
-    //         five: 0.0,
-    //         fifteen: 0.0,
-    //     },
-    //     cpu_usage: "Error".to_string(),
-    //     memory_usage: "Error".to_string(),
-    // }
-    panic!("")
+    let b: ByteSize = ByteSize::mb(0);
+
+    let mem_usage = MemoryWrapper {
+        memory_usage: Memory {
+            total: b,
+            free: b,
+            platform_memory: PlatformMemory {
+                total: b,
+                active: b,
+                inactive: b,
+                wired: b,
+                free: b,
+                purgeable: b,
+                speculative: b,
+                compressor: b,
+                throttled: b,
+                external: b,
+                internal: b,
+                uncompressed_in_compressor: b,
+            },
+        },
+    };
+    Stats {
+        loadavg: Loadavg {
+            one: 0.0,
+            five: 0.0,
+            fifteen: 0.0,
+        },
+        cpu_usage: "Error".to_string(),
+        memory_usage: mem_usage,
+    }
 }
 
 #[get("")]
 pub async fn index_page() -> Result<HttpResponse, Error> {
-    // parameter for this method - req: &HttpRequest
-    // println!("{:?}", req);
-
     let sys = System::new();
 
     match sys.cpu_temp() {

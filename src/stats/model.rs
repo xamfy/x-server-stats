@@ -10,8 +10,7 @@ extern crate chrono;
 pub struct Stats {
     pub loadavg: Loadavg,
     pub cpu_usage: String,
-    #[serde(with = "MemoryRef")]
-    pub memory_usage: Memory,
+    pub memory_usage: MemoryWrapper,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -75,3 +74,9 @@ pub struct MemoryRef {
 }
 
 // Ref::https://serde.rs/remote-derive.html
+
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct MemoryWrapper {
+    #[serde(with = "MemoryRef")]
+    pub memory_usage: Memory,
+}
