@@ -8,6 +8,7 @@ use actix_web_lab::__reexports::serde_json;
 use askama::Template;
 use core::fmt;
 use minify::html::minify;
+use std::fmt::Display;
 
 extern crate minify;
 
@@ -15,17 +16,17 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{ByteSize, LoadAverage, Memory, Platform, PlatformMemory, System};
+use systemstat::{ByteSize, Memory, Platform, PlatformMemory, System};
 
-impl fmt::Display for Loadavg {
+impl Display for Loadavg {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Load avg: ")
     }
 }
 
-impl fmt::Display for MemoryWrapper {
+impl Display for MemoryWrapper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "mem ")
+        write!(f, "Memory")
     }
 }
 
@@ -68,9 +69,27 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                 },
             };
 
+            let empty_error_byte: ByteSize = ByteSize::mb(0);
             let memory_details = match sys.memory() {
                 Ok(mem) => mem,
-                Err(err) => panic!("Error: {:?}", err),
+                Err(_) => Memory {
+                    total: empty_error_byte,
+                    free: empty_error_byte,
+                    platform_memory: PlatformMemory {
+                        total: empty_error_byte,
+                        active: empty_error_byte,
+                        inactive: empty_error_byte,
+                        wired: empty_error_byte,
+                        free: empty_error_byte,
+                        purgeable: empty_error_byte,
+                        speculative: empty_error_byte,
+                        compressor: empty_error_byte,
+                        throttled: empty_error_byte,
+                        external: empty_error_byte,
+                        internal: empty_error_byte,
+                        uncompressed_in_compressor: empty_error_byte,
+                    },
+                },
             };
 
             println!(
@@ -103,39 +122,35 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
         }
         Err(x) => println!("\nCPU load: error: {}", x),
     }
-    let av = LoadAverage {
+    let loadavg = Loadavg {
         one: 0.0,
         five: 0.0,
         fifteen: 0.0,
     };
-    let b: ByteSize = ByteSize::mb(0);
+    let empty_error_byte: ByteSize = ByteSize::mb(0);
 
     let mem_usage = MemoryWrapper {
         memory_usage: Memory {
-            total: b,
-            free: b,
+            total: empty_error_byte,
+            free: empty_error_byte,
             platform_memory: PlatformMemory {
-                total: b,
-                active: b,
-                inactive: b,
-                wired: b,
-                free: b,
-                purgeable: b,
-                speculative: b,
-                compressor: b,
-                throttled: b,
-                external: b,
-                internal: b,
-                uncompressed_in_compressor: b,
+                total: empty_error_byte,
+                active: empty_error_byte,
+                inactive: empty_error_byte,
+                wired: empty_error_byte,
+                free: empty_error_byte,
+                purgeable: empty_error_byte,
+                speculative: empty_error_byte,
+                compressor: empty_error_byte,
+                throttled: empty_error_byte,
+                external: empty_error_byte,
+                internal: empty_error_byte,
+                uncompressed_in_compressor: empty_error_byte,
             },
         },
     };
     Stats {
-        loadavg: Loadavg {
-            one: 0.0,
-            five: 0.0,
-            fifteen: 0.0,
-        },
+        loadavg,
         cpu_usage: "Error".to_string(),
         memory_usage: mem_usage,
     }
