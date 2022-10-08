@@ -5,8 +5,12 @@ use actix_web::{get, Error, HttpResponse, Responder};
 use actix_web_lab::__reexports::serde_json;
 use askama::Template;
 use minify::html::minify;
+use std::{
+    convert::{TryFrom, TryInto},
+    io, path,
+};
 
-use crate::stats::StatsResponse;
+use crate::stats::{Loadavg, StatsResponse};
 use crate::Stats;
 
 extern crate minify;
@@ -15,7 +19,7 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{Platform, System};
+use systemstat::{LoadAverage, Memory, Platform, System};
 
 #[derive(Template)] // this will generate the code...
 #[template(path = "index.html")] // using the template in this path, relative
@@ -42,6 +46,21 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
             println!("\nMeasuring CPU load...");
             thread::sleep(Duration::from_secs(1));
             let cpu = cpu.done().unwrap();
+
+            let load_avg = match sys.load_average() {
+                Ok(load) => Loadavg {
+                    one: load.one,
+                    five: load.five,
+                    fifteen: load.fifteen,
+                },
+                Err(err) => panic!("Error: {:?}", err),
+            };
+
+            let memory_details = match sys.memory() {
+                Ok(mem) => mem,
+                Err(err) => panic!("Error: {:?}", err),
+            };
+
             println!(
                 "CPU load: {}% user, {}% nice, {}% system, {}% intr, {}% idle ",
                 cpu.user * 100.0,
@@ -61,21 +80,30 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
             );
 
             let stats = Stats {
-                loadavg: "1.0".to_string(),
+                loadavg: load_avg,
                 cpu_usage,
-                memory_usage: "3.0".to_string(),
+                memory_usage: memory_details,
             };
 
             return stats;
         }
         Err(x) => println!("\nCPU load: error: {}", x),
     }
-
-    Stats {
-        loadavg: "Error".to_string(),
-        cpu_usage: "Error".to_string(),
-        memory_usage: "Error".to_string(),
-    }
+    let av = LoadAverage {
+        one: 0.0,
+        five: 0.0,
+        fifteen: 0.0,
+    };
+    // Stats {
+    //     loadavg: Loadavg {
+    //         one: 0.0,
+    //         five: 0.0,
+    //         fifteen: 0.0,
+    //     },
+    //     cpu_usage: "Error".to_string(),
+    //     memory_usage: "Error".to_string(),
+    // }
+    panic!("")
 }
 
 #[get("")]
