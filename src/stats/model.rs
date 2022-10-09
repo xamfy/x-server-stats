@@ -13,7 +13,7 @@ pub struct Stats {
     pub memory_usage: MemoryWrapper,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Clone, Deserialize)]
 pub struct StatsResponse {
     pub result: bool,
     pub data: Stats,
@@ -29,7 +29,7 @@ pub struct Loadavg {
 // Serde calls this the definition of the remote type. It is just a copy of the
 // remote data structure. The `remote` attribute gives the path to the actual
 // type we intend to derive code for.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "PlatformMemory")]
 struct PlatformMemoryDef {
     #[serde(with = "ByteSizeRef")]
@@ -58,11 +58,11 @@ struct PlatformMemoryDef {
     pub uncompressed_in_compressor: ByteSize,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "ByteSize")]
 struct ByteSizeRef(u64);
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "Memory")]
 pub struct MemoryRef {
     #[serde(with = "ByteSizeRef")]

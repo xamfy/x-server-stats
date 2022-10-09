@@ -1,4 +1,6 @@
 use crate::stats::{Loadavg, MemoryWrapper, StatsResponse};
+use crate::utils::{get_empty_memory_usage, get_empty_memory_wrapper, get_load};
+
 use crate::Stats;
 use actix_web::body::BoxBody;
 use actix_web::http::header::ContentType;
@@ -16,7 +18,7 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{ByteSize, Memory, Platform, PlatformMemory, System};
+use systemstat::{Platform, System};
 
 impl Display for Loadavg {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -62,34 +64,12 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                     five: load.five,
                     fifteen: load.fifteen,
                 },
-                Err(_) => Loadavg {
-                    one: 0.0,
-                    five: 0.0,
-                    fifteen: 0.0,
-                },
+                Err(_) => get_load(0.0, 0.0, 0.0),
             };
 
-            let empty_error_byte: ByteSize = ByteSize::mb(0);
             let memory_details = match sys.memory() {
                 Ok(mem) => mem,
-                Err(_) => Memory {
-                    total: empty_error_byte,
-                    free: empty_error_byte,
-                    platform_memory: PlatformMemory {
-                        total: empty_error_byte,
-                        active: empty_error_byte,
-                        inactive: empty_error_byte,
-                        wired: empty_error_byte,
-                        free: empty_error_byte,
-                        purgeable: empty_error_byte,
-                        speculative: empty_error_byte,
-                        compressor: empty_error_byte,
-                        throttled: empty_error_byte,
-                        external: empty_error_byte,
-                        internal: empty_error_byte,
-                        uncompressed_in_compressor: empty_error_byte,
-                    },
-                },
+                Err(_) => get_empty_memory_usage(),
             };
 
             println!(
@@ -109,50 +89,21 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                 cpu.interrupt * 100.0,
                 cpu.idle * 100.0
             );
-            // memory_details
-            let stats = Stats {
+
+            return Stats {
                 loadavg: load_avg,
                 cpu_usage,
                 memory_usage: MemoryWrapper {
                     memory_usage: memory_details,
                 },
             };
-
-            return stats;
         }
         Err(x) => println!("\nCPU load: error: {}", x),
     }
-    let loadavg = Loadavg {
-        one: 0.0,
-        five: 0.0,
-        fifteen: 0.0,
-    };
-    let empty_error_byte: ByteSize = ByteSize::mb(0);
-
-    let mem_usage = MemoryWrapper {
-        memory_usage: Memory {
-            total: empty_error_byte,
-            free: empty_error_byte,
-            platform_memory: PlatformMemory {
-                total: empty_error_byte,
-                active: empty_error_byte,
-                inactive: empty_error_byte,
-                wired: empty_error_byte,
-                free: empty_error_byte,
-                purgeable: empty_error_byte,
-                speculative: empty_error_byte,
-                compressor: empty_error_byte,
-                throttled: empty_error_byte,
-                external: empty_error_byte,
-                internal: empty_error_byte,
-                uncompressed_in_compressor: empty_error_byte,
-            },
-        },
-    };
     Stats {
-        loadavg,
+        loadavg: get_load(0.0, 0.0, 0.0),
         cpu_usage: "Error".to_string(),
-        memory_usage: mem_usage,
+        memory_usage: get_empty_memory_wrapper(),
     }
 }
 
