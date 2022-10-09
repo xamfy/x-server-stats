@@ -1,9 +1,16 @@
+use serde::Deserializer;
+use serde::Serializer;
 use std::str;
 
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DeserializeAs, SerializeAs};
+
 use systemstat::{ByteSize, Memory, PlatformMemory};
 
 extern crate chrono;
+
+#[cfg(target_os = "linux")]
+pub use std::collections::BTreeMap;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 
@@ -31,6 +38,7 @@ pub struct Loadavg {
 // type we intend to derive code for.
 #[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "PlatformMemory")]
+#[cfg(target_os = "macos")]
 struct PlatformMemoryDef {
     #[serde(with = "ByteSizeRef")]
     pub total: ByteSize,
@@ -58,6 +66,15 @@ struct PlatformMemoryDef {
     pub uncompressed_in_compressor: ByteSize,
 }
 
+#[serde_as]
+#[derive(Serialize, Clone, Deserialize)]
+#[serde(remote = "PlatformMemory")]
+#[cfg(target_os = "linux")]
+struct PlatformMemoryDef {
+    #[serde_as(as = "BTreeMap<_, ByteSizeRef>")]
+    meminfo: BTreeMap<String, ByteSize>,
+}
+
 #[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "ByteSize")]
 struct ByteSizeRef(u64);
@@ -79,4 +96,27 @@ pub struct MemoryRef {
 pub struct MemoryWrapper {
     #[serde(with = "MemoryRef")]
     pub memory_usage: Memory,
+}
+
+impl SerializeAs<ByteSize> for ByteSizeRef {
+    fn serialize_as<S>(source: &ByteSize, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        #[derive(Serialize)]
+        struct Helper<'a>(#[serde(with = "ByteSizeRef")] &'a ByteSize);
+        Helper(source).serialize(serializer)
+    }
+}
+impl<'de> DeserializeAs<'de, ByteSize> for ByteSizeRef {
+    fn deserialize_as<D>(deserializer: D) -> Result<ByteSize, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper(#[serde(with = "ByteSizeRef")] ByteSize);
+        let helper = Helper::deserialize(deserializer)?;
+        let Helper(v) = helper;
+        Ok(v)
+    }
 }

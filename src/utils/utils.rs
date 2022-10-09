@@ -1,4 +1,6 @@
 use crate::stats::{Loadavg, MemoryWrapper};
+#[cfg(target_os = "linux")]
+use systemstat::BTreeMap;
 
 extern crate minify;
 
@@ -10,8 +12,9 @@ pub fn get_load(one: f32, five: f32, fifteen: f32) -> Loadavg {
     Loadavg { one, five, fifteen }
 }
 
+#[cfg(target_os = "macos")]
 pub fn get_empty_platform_memory() -> PlatformMemory {
-    let empty_error_byte: ByteSize = ByteSize::mb(0);
+    let empty_error_byte = ByteSize::mb(0);
     PlatformMemory {
         total: empty_error_byte,
         active: empty_error_byte,
@@ -28,6 +31,12 @@ pub fn get_empty_platform_memory() -> PlatformMemory {
     }
 }
 
+#[cfg(target_os = "linux")]
+pub fn get_empty_platform_memory() -> PlatformMemory {
+    let mut map = BTreeMap::new();
+    PlatformMemory { meminfo: map }
+}
+
 pub fn get_empty_memory_wrapper() -> MemoryWrapper {
     MemoryWrapper {
         memory_usage: get_empty_memory_usage(),
@@ -35,7 +44,7 @@ pub fn get_empty_memory_wrapper() -> MemoryWrapper {
 }
 
 pub fn get_empty_memory_usage() -> Memory {
-    let empty_error_byte: ByteSize = ByteSize::mb(0);
+    let empty_error_byte = ByteSize::mb(0);
     Memory {
         total: empty_error_byte,
         free: empty_error_byte,
