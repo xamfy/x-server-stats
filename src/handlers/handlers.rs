@@ -147,3 +147,5 @@ async fn status_get_api() -> impl Responder {
         .content_type(ContentType::json())
         .body(response)
 }
+
+//https://www.anycodings.com/1questions/2410879/using-serdejson-to-serialise-maps-with-non-string-keys

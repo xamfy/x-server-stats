@@ -1,16 +1,20 @@
-use serde::Deserializer;
 use serde::Serializer;
+use std::fmt;
+use std::marker::PhantomData;
 use std::str;
 
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DeserializeAs, SerializeAs};
+// use serde_with::{serde_as, DeserializeAs, SerializeAs};
 
+use serde::de::{Deserializer, MapAccess, Visitor};
+use serde::ser::SerializeMap;
 use systemstat::{ByteSize, Memory, PlatformMemory};
 
 extern crate chrono;
 
-#[cfg(target_os = "linux")]
+// #[cfg(target_os = "linux")]
 pub use std::collections::BTreeMap;
+// pub use std::collections::BTreeMap as MyMap;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 
@@ -66,12 +70,12 @@ struct PlatformMemoryDef {
     pub uncompressed_in_compressor: ByteSize,
 }
 
-#[serde_as]
+// #[serde_as]
 #[derive(Serialize, Clone, Deserialize)]
 #[serde(remote = "PlatformMemory")]
 #[cfg(target_os = "linux")]
 struct PlatformMemoryDef {
-    #[serde_as(as = "BTreeMap<_, ByteSizeRef>")]
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     meminfo: BTreeMap<String, ByteSize>,
 }
 
@@ -95,28 +99,40 @@ pub struct MemoryRef {
 #[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct MemoryWrapper {
     #[serde(with = "MemoryRef")]
+    #[serde(flatten)]
+    //The flatten attribute inlines keys from a field into the parent struct.
     pub memory_usage: Memory,
 }
 
-impl SerializeAs<ByteSize> for ByteSizeRef {
-    fn serialize_as<S>(source: &ByteSize, serializer: S) -> Result<S::Ok, S::Error>
+#[derive(Copy, Clone)]
+pub struct BTreeWrapper {
+    myMap: BTreeMap<String, ByteSize>,
+}
+
+impl Serialize for BTreeWrapper
+// where
+//     K: Serialize,
+//     V: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        #[derive(Serialize)]
-        struct Helper<'a>(#[serde(with = "ByteSizeRef")] &'a ByteSize);
-        Helper(source).serialize(serializer)
+        let mut map = serializer.serialize_map(Some(self.myMap.len()))?;
+        for (k, v) in self.myMap {
+            map.serialize_entry(k, v)?;
+        }
+        map.end()
     }
 }
-impl<'de> DeserializeAs<'de, ByteSize> for ByteSizeRef {
-    fn deserialize_as<D>(deserializer: D) -> Result<ByteSize, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        struct Helper(#[serde(with = "ByteSizeRef")] ByteSize);
-        let helper = Helper::deserialize(deserializer)?;
-        let Helper(v) = helper;
-        Ok(v)
-    }
-}
+
+// https://clubrobotinsat.github.io/librobot/serde/trait.Serializer.html#method.collect_map
+// https://lucumr.pocoo.org/2021/11/14/abusing-serde/
+// https://github.com/serde-rs/json/issues/343
+
+// https://stackoverflow.com/questions/63846516/using-serde-json-to-serialise-maps-with-non-string-keys
+// https://github.com/serde-rs/serde/issues/1387
+// https://github.com/serde-rs/serde/issues/2294
+// https://serde.rs/deserialize-struct.html
+// https://www.anycodings.com/1questions/2410879/using-serdejson-to-serialise-maps-with-non-string-keys
+// https://serde.rs/deserialize-map.html
