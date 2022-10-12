@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["x_server_stats"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.64.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"x_server_stats/config/config/struct.ServerConfig.html\" title=\"struct x_server_stats::config::config::ServerConfig\">ServerConfig</a>","synthetic":false,"types":["x_server_stats::config::config::ServerConfig"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

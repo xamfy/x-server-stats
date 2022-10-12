@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["x_server_stats"] = [{"text":"impl Responder for <a class=\"struct\" href=\"x_server_stats/handlers/handlers/struct.StatsTemplate.html\" title=\"struct x_server_stats::handlers::handlers::StatsTemplate\">StatsTemplate</a>","synthetic":false,"types":["x_server_stats::handlers::handlers::StatsTemplate"]},{"text":"impl Responder for <a class=\"struct\" href=\"x_server_stats/stats/model/struct.StatsResponse.html\" title=\"struct x_server_stats::stats::model::StatsResponse\">StatsResponse</a>","synthetic":false,"types":["x_server_stats::stats::model::StatsResponse"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

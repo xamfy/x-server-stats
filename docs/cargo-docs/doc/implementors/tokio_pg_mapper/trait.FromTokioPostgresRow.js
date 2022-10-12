@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["x_server_stats"] = [{"text":"impl FromTokioPostgresRow for <a class=\"struct\" href=\"x_server_stats/stats/model/struct.Stats.html\" title=\"struct x_server_stats::stats::model::Stats\">Stats</a>","synthetic":false,"types":["x_server_stats::stats::model::Stats"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

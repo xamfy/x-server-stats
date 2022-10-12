@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["get_stats_from_linux",""]],"struct":[["StatsTemplate",""],["index_page",""],["status_get_api",""]]};
