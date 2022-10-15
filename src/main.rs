@@ -3,6 +3,7 @@
 mod config;
 mod handlers;
 mod stats;
+mod utils;
 
 use std::env;
 
