@@ -28,8 +28,8 @@ if (fs.existsSync(cargoDir)) {
     
 const binp = path.join(cargoDir, "bin", "x-server-stats");
 
-console.log("Installing and compiling x-server-stats 0.1.1...");
-exec(`cargo install x-server-stats --vers 0.1.1`, (error, stdout, stderr) => {
+console.log("Installing and compiling x-server-stats 0.1.2...");
+exec(`cargo install x-server-stats --vers 0.1.2`, (error, stdout, stderr) => {
   console.log(stdout);
   if (error || stderr) {
     console.log(error || stderr);
