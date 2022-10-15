@@ -5,9 +5,8 @@ use crate::Stats;
 use actix_web::body::BoxBody;
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
-use actix_web::{get, Error, HttpResponse, Responder};
 use actix_web_lab::__reexports::serde_json;
-use actix_web::{get, web, App, Error, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{get, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use askama::Template;
 use core::fmt;
 use minify::html::minify;
@@ -17,7 +16,6 @@ use std::fmt::Display;
 use actix::{Actor, StreamHandler};
 use actix_web_actors::ws;
 
-use crate::Stats;
 
 extern crate minify;
 
