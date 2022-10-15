@@ -18,7 +18,7 @@ extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{Platform, System};
+use systemstat::{Memory, Platform, System};
 
 impl Display for Loadavg {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
