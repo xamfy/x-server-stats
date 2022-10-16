@@ -9,24 +9,13 @@
 <body>
     Load average: 
     <div>
-        one:{{ stats.loadavg.one }} <br />
-        five:{{ stats.loadavg.five }} <br />
-        fifteen:{{ stats.loadavg.fifteen }} <br />
+        one:{{ stats.data.loadavg.one }} <br />
+        five:{{ stats.data.loadavg.five }} <br />
+        fifteen:{{ stats.data.loadavg.fifteen }} <br />
     </div>
-    Cpu usage: {{ stats.cpu_usage }} </br />
-    Memory usage: {{ stats.memory_usage }} <br />
+    Memory usage: {{ stats.data.memory_usage }} <br />
+    Cpu Details: {{ stats.data.cpu_details }} <br />
 
-    <!-- three row two column table -->
-<!--    <table>-->
-<!--        <tr>-->
-<!--            <th>Load average</th>-->
-<!--            <th>Cpu usage</th>-->
-<!--            <th>Memory usage</th>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--            <td>{{ stats.loadavg }}</td>-->
-<!--            <td>{{ stats.cpu_usage }}</td>-->
-<!--            <td>{{ stats.memory_usage }}</td>-->
-<!--        </tr>-->
+
 </body>
 </html>

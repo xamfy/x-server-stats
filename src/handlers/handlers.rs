@@ -1,5 +1,5 @@
-use crate::stats::{Loadavg, MemoryRef, PlatformMemoryDef, StatsResponse};
-use crate::utils::{get_empty_memory_usage, get_load};
+use crate::stats::{CPUDetails, CPUUsageDef, Loadavg, MemoryRef, PlatformMemoryDef, StatsResponse};
+use crate::utils::{get_empty_cpu_details, get_empty_memory_usage, get_load};
 
 use crate::Stats;
 use actix_web::body::BoxBody;
@@ -32,11 +32,26 @@ impl Display for MemoryRef {
     }
 }
 
+impl Display for CPUDetails {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "CPU load: {}% user, {}% nice, {}% system, {}% intr, {}% idle, {} temp",
+            self.cpu_usage.user * 100.0,
+            self.cpu_usage.nice * 100.0,
+            self.cpu_usage.system * 100.0,
+            self.cpu_usage.interrupt * 100.0,
+            self.cpu_usage.idle * 100.0,
+            self.cpu_temp
+        )
+    }
+}
+
 #[derive(Template)] // this will generate the code...
 #[template(path = "index.html")] // using the template in this path, relative
                                  // to the `templates` dir in the crate root
 struct StatsTemplate {
-    stats: Stats,
+    stats: StatsResponse,
 }
 
 impl Responder for StatsResponse {
@@ -51,7 +66,7 @@ impl Responder for StatsResponse {
     }
 }
 
-pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
+pub async fn get_stats_from_linux(sys: PlatformImpl) -> StatsResponse {
     match sys.cpu_load_aggregate() {
         Ok(cpu) => {
             println!("\nMeasuring CPU load...");
@@ -166,27 +181,41 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> Stats {
                 cpu.idle * 100.0
             );
 
-            let cpu_usage = format!(
-                "CPU load: {}% user, {}% nice, {}% system, {}% intr, {}% idle ",
-                cpu.user * 100.0,
-                cpu.nice * 100.0, // TG :cpu load nice
-                cpu.system * 100.0,
-                cpu.interrupt * 100.0,
-                cpu.idle * 100.0
-            );
+            let cpu_temp = if let Ok(cpu_temp) = sys.cpu_temp() {
+                cpu_temp
+            } else {
+                0.0
+            };
 
-            return Stats {
+            let stats = Stats {
                 loadavg: load_avg,
-                cpu_usage,
                 memory_usage: memory_details,
+                cpu_details: CPUDetails {
+                    cpu_usage: CPUUsageDef {
+                        user: cpu.user,
+                        nice: cpu.nice,
+                        system: cpu.system,
+                        interrupt: cpu.interrupt,
+                        idle: cpu.idle,
+                    },
+                    cpu_temp,
+                },
+            };
+            return StatsResponse {
+                result: true,
+                data: stats,
             };
         }
         Err(x) => println!("\nCPU load: error: {}", x),
     }
-    Stats {
+    let stats = Stats {
         loadavg: get_load(0.0, 0.0, 0.0),
-        cpu_usage: "Error".to_string(),
         memory_usage: get_empty_memory_usage(),
+        cpu_details: get_empty_cpu_details(),
+    };
+    StatsResponse {
+        data: stats,
+        result: false,
     }
 }
 
@@ -197,10 +226,10 @@ pub async fn index_page() -> Result<HttpResponse, Error> {
     match sys.cpu_temp() {
         Ok(cpu_temp) => println!("\nCPU temp: {}", cpu_temp),
         Err(x) => println!("\nCPU temp: {}", x),
-    }
+    };
 
-    let stats: Stats = get_stats_from_linux(sys).await;
-    println!("{:?}", stats);
+    let stats = get_stats_from_linux(sys).await;
+    println!("{:?}", stats.data);
 
     let stats_html = StatsTemplate { stats }; // instantiate your struct
 
@@ -214,17 +243,10 @@ pub async fn index_page() -> Result<HttpResponse, Error> {
 #[get("/v1/stats")]
 async fn status_get_api() -> impl Responder {
     let sys = System::new();
-    let stats: Stats = get_stats_from_linux(sys).await;
-    println!("{:?}", stats);
+    let stats = get_stats_from_linux(sys).await;
+    println!("{:?}", stats.data);
 
-    let has_error = stats.cpu_usage == "Error";
-
-    let stats_response = StatsResponse {
-        result: !has_error,
-        data: stats,
-    };
-
-    let response = serde_json::to_string(&stats_response).unwrap();
+    let response = serde_json::to_string(&stats).unwrap();
 
     HttpResponse::Ok()
         .content_type(ContentType::json())

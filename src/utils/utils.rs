@@ -1,6 +1,5 @@
+use crate::stats::{CPUDetails, CPUUsageDef};
 use crate::stats::{Loadavg, MemoryRef, PlatformMemoryDef};
-#[cfg(target_os = "linux")]
-use systemstat::BTreeMap;
 
 extern crate minify;
 
@@ -12,7 +11,6 @@ pub fn get_load(one: f32, five: f32, fifteen: f32) -> Loadavg {
 
 #[cfg(target_os = "macos")]
 pub fn get_empty_platform_memory() -> PlatformMemoryDef {
-    let empty_error_byte = "".to_string();
     #[cfg(target_os = "macos")]
     PlatformMemoryDef {
         total: "".to_string(),
@@ -42,70 +40,38 @@ pub fn get_empty_platform_memory() -> PlatformMemoryDef {
         buffers: "".to_string(),
         cached: "".to_string(),
         commit_limit: "".to_string(),
-
         committed_as: "".to_string(),
-
         direct_map1g: "".to_string(),
-
         direct_map2m: "".to_string(),
-
         direct_map4k: "".to_string(),
-
         dirty: "".to_string(),
-
         file_huge_pages: "".to_string(),
-
         file_pmd_mapped: "".to_string(),
-
         hardware_corrupted: "".to_string(),
-
         hugepagesize: "".to_string(),
-
         hugetlb: "".to_string(),
-
         inactive: "".to_string(),
-
         inactive_anon: "".to_string(),
-
         inactive_file: "".to_string(),
-
         kreclaimable: "".to_string(),
-
         kernel_stack: "".to_string(),
-
         mapped: "".to_string(),
-
         mem_available: "".to_string(),
-
         mem_free: "".to_string(),
-
         mem_total: "".to_string(),
-
         mlocked: "".to_string(),
-
         nfs_unstable: "".to_string(),
-
         page_tables: "".to_string(),
-
         percpu: "".to_string(),
-
         sreclaimable: "".to_string(),
-
         sunreclaim: "".to_string(),
-
         shmem: "".to_string(),
-
         shmem_huge_pages: "".to_string(),
-
         shmem_pmd_mapped: "".to_string(),
-
         slab: "".to_string(),
-
         swap_cached: "".to_string(),
-
         swap_free: "".to_string(),
         swap_total: "".to_string(),
-
         unevictable: "".to_string(),
         vmalloc_chunk: "".to_string(),
         vmalloc_total: "".to_string(),
@@ -131,5 +97,18 @@ pub fn get_empty_memory_usage() -> MemoryRef {
         total: "".to_string(),
         free: "".to_string(),
         platform_memory: get_empty_platform_memory(),
+    }
+}
+
+pub fn get_empty_cpu_details() -> CPUDetails {
+    CPUDetails {
+        cpu_usage: CPUUsageDef {
+            user: 0.0,
+            nice: 0.0,
+            system: 0.0,
+            interrupt: 0.0,
+            idle: 0.0,
+        },
+        cpu_temp: 0.0,
     }
 }
