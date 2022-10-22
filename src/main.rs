@@ -10,9 +10,11 @@ use std::env;
 use ::config::Config;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use actix_web::web::ServiceConfig;
 use actix_web_lab::web as web_lab;
 use dotenv::dotenv;
 use handlers::index_page;
+use handlers::ws_stats_index;
 use tokio_postgres::NoTls;
 
 use crate::config::ServerConfig;
@@ -22,6 +24,7 @@ use stats::Stats;
 
 fn scoped_config(cfg: &mut web::ServiceConfig) {
     cfg.service(index_page);
+    cfg.service(ws_stats_index);
 }
 
 fn api_scoped_config(cfg: &mut web::ServiceConfig) {
