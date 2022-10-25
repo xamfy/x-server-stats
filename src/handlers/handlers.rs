@@ -1,5 +1,5 @@
 use crate::stats::{CPUDetails, CPUUsageDef, Loadavg, MemoryRef, PlatformMemoryDef, StatsResponse};
-use crate::utils::{get_empty_cpu_details, get_empty_memory_usage, get_load};
+use crate::utils::{get_empty_cpu_details, get_empty_memory_usage, get_load, has_key};
 
 use crate::Stats;
 use actix_web::body::BoxBody;
@@ -11,14 +11,13 @@ use askama::Template;
 use core::fmt;
 use minify::html::minify;
 use std::fmt::Display;
-
 extern crate minify;
 
 extern crate systemstat;
 use std::thread;
 use std::time::Duration;
 use systemstat::platform::PlatformImpl;
-use systemstat::{Memory, Platform, System};
+use systemstat::{Platform, System};
 
 impl Display for Loadavg {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -82,86 +81,56 @@ pub async fn get_stats_from_linux(sys: PlatformImpl) -> StatsResponse {
                 Err(_) => get_load(0.0, 0.0, 0.0),
             };
 
-            #[cfg(target_os = "macos")]
             let memory_details = match sys.memory() {
                 Ok(mem) => {
                     let platform_memory = PlatformMemoryDef {
-                        total: mem.total.to_string(),
-                        active: mem.platform_memory.active.to_string(),
-                        inactive: mem.platform_memory.inactive.to_string(),
-                        wired: mem.platform_memory.wired.to_string(),
-                        free: mem.platform_memory.free.to_string(),
-                        purgeable: mem.platform_memory.purgeable.to_string(),
-                        speculative: mem.platform_memory.speculative.to_string(),
-                        compressor: mem.platform_memory.compressor.to_string(),
-                        throttled: mem.platform_memory.throttled.to_string(),
-                        external: mem.platform_memory.external.to_string(),
-                        internal: mem.platform_memory.internal.to_string(),
-                        uncompressed_in_compressor: mem
-                            .platform_memory
-                            .uncompressed_in_compressor
-                            .to_string(),
-                    };
-                    MemoryRef {
-                        total: mem.total.to_string(),
-                        free: mem.free.to_string(),
-                        platform_memory,
-                    }
-                }
-                Err(_) => get_empty_memory_usage(),
-            };
-
-            #[cfg(target_os = "linux")]
-            let memory_details = match sys.memory() {
-                Ok(mem) => {
-                    let platform_memory = PlatformMemoryDef {
-                        active: check_whether_key(&mem, "Active"),
-                        active_anon: check_whether_key(&mem, "Active(anon)"),
-                        active_file: check_whether_key(&mem, "Active(file)"),
-                        anon_huge_pages: check_whether_key(&mem, "AnonHugePages"),
-                        anon_pages: check_whether_key(&mem, "AnonPages"),
-                        bounce: check_whether_key(&mem, "Bounce"),
-                        buffers: check_whether_key(&mem, "Buffers"),
-                        cached: check_whether_key(&mem, "Cached"),
-                        commit_limit: check_whether_key(&mem, "CommitLimit"),
-                        committed_as: check_whether_key(&mem, "Committed_AS"),
-                        direct_map1g: check_whether_key(&mem, "DirectMap1G"),
-                        direct_map2m: check_whether_key(&mem, "DirectMap2M"),
-                        direct_map4k: check_whether_key(&mem, "DirectMap4k"),
-                        dirty: check_whether_key(&mem, "Dirty"),
-                        file_huge_pages: check_whether_key(&mem, "FileHugePages"),
-                        file_pmd_mapped: check_whether_key(&mem, "FilePmdMapped"),
-                        hardware_corrupted: check_whether_key(&mem, "HardwareCorrupted"),
-                        hugepagesize: check_whether_key(&mem, "Hugepagesize"),
-                        hugetlb: check_whether_key(&mem, "Hugetlb"),
-                        inactive: check_whether_key(&mem, "Inactive"),
-                        inactive_anon: check_whether_key(&mem, "Inactive(anon)"),
-                        inactive_file: check_whether_key(&mem, "Inactive(file)"),
-                        kreclaimable: check_whether_key(&mem, "KReclaimable"),
-                        kernel_stack: check_whether_key(&mem, "KernelStack"),
-                        mapped: check_whether_key(&mem, "Mapped"),
-                        mem_available: check_whether_key(&mem, "MemAvailable"),
-                        mem_free: check_whether_key(&mem, "MemFree"),
-                        mem_total: check_whether_key(&mem, "MemTotal"),
-                        mlocked: check_whether_key(&mem, "Mlocked"),
-                        nfs_unstable: check_whether_key(&mem, "NFS_Unstable"),
-                        page_tables: check_whether_key(&mem, "PageTables"),
-                        percpu: check_whether_key(&mem, "Percpu"),
-                        sreclaimable: check_whether_key(&mem, "SReclaimable"),
-                        sunreclaim: check_whether_key(&mem, "SUnreclaim"),
-                        shmem: check_whether_key(&mem, "Shmem"),
-                        shmem_huge_pages: check_whether_key(&mem, "ShmemHugePages"),
-                        shmem_pmd_mapped: check_whether_key(&mem, "ShmemPmdMapped"),
-                        slab: check_whether_key(&mem, "Slab"),
-                        swap_cached: check_whether_key(&mem, "SwapCached"),
-                        swap_free: check_whether_key(&mem, "SwapFree"),
-                        swap_total: check_whether_key(&mem, "SwapTotal"),
-                        unevictable: check_whether_key(&mem, "Unevictable"),
-                        vmalloc_chunk: check_whether_key(&mem, "VmallocChunk"),
-                        vmalloc_total: check_whether_key(&mem, "VmallocTotal"),
-                        vmalloc_used: check_whether_key(&mem, "VmallocUsed"),
-                        writeback: check_whether_key(&mem, "Writeback"),
-                        writeback_tmp: check_whether_key(&mem, "WritebackTmp"),
+                        active: has_key(&mem, "Active"),
+                        active_anon: has_key(&mem, "Active(anon)"),
+                        active_file: has_key(&mem, "Active(file)"),
+                        anon_huge_pages: has_key(&mem, "AnonHugePages"),
+                        anon_pages: has_key(&mem, "AnonPages"),
+                        bounce: has_key(&mem, "Bounce"),
+                        buffers: has_key(&mem, "Buffers"),
+                        cached: has_key(&mem, "Cached"),
+                        commit_limit: has_key(&mem, "CommitLimit"),
+                        committed_as: has_key(&mem, "Committed_AS"),
+                        direct_map1g: has_key(&mem, "DirectMap1G"),
+                        direct_map2m: has_key(&mem, "DirectMap2M"),
+                        direct_map4k: has_key(&mem, "DirectMap4k"),
+                        dirty: has_key(&mem, "Dirty"),
+                        file_huge_pages: has_key(&mem, "FileHugePages"),
+                        file_pmd_mapped: has_key(&mem, "FilePmdMapped"),
+                        hardware_corrupted: has_key(&mem, "HardwareCorrupted"),
+                        hugepagesize: has_key(&mem, "Hugepagesize"),
+                        hugetlb: has_key(&mem, "Hugetlb"),
+                        inactive: has_key(&mem, "Inactive"),
+                        inactive_anon: has_key(&mem, "Inactive(anon)"),
+                        inactive_file: has_key(&mem, "Inactive(file)"),
+                        kreclaimable: has_key(&mem, "KReclaimable"),
+                        kernel_stack: has_key(&mem, "KernelStack"),
+                        mapped: has_key(&mem, "Mapped"),
+                        mem_available: has_key(&mem, "MemAvailable"),
+                        mem_free: has_key(&mem, "MemFree"),
+                        mem_total: has_key(&mem, "MemTotal"),
+                        mlocked: has_key(&mem, "Mlocked"),
+                        nfs_unstable: has_key(&mem, "NFS_Unstable"),
+                        page_tables: has_key(&mem, "PageTables"),
+                        percpu: has_key(&mem, "Percpu"),
+                        sreclaimable: has_key(&mem, "SReclaimable"),
+                        sunreclaim: has_key(&mem, "SUnreclaim"),
+                        shmem: has_key(&mem, "Shmem"),
+                        shmem_huge_pages: has_key(&mem, "ShmemHugePages"),
+                        shmem_pmd_mapped: has_key(&mem, "ShmemPmdMapped"),
+                        slab: has_key(&mem, "Slab"),
+                        swap_cached: has_key(&mem, "SwapCached"),
+                        swap_free: has_key(&mem, "SwapFree"),
+                        swap_total: has_key(&mem, "SwapTotal"),
+                        unevictable: has_key(&mem, "Unevictable"),
+                        vmalloc_chunk: has_key(&mem, "VmallocChunk"),
+                        vmalloc_total: has_key(&mem, "VmallocTotal"),
+                        vmalloc_used: has_key(&mem, "VmallocUsed"),
+                        writeback: has_key(&mem, "Writeback"),
+                        writeback_tmp: has_key(&mem, "WritebackTmp"),
                     };
                     MemoryRef {
                         total: mem.total.to_string(),
@@ -251,15 +220,4 @@ async fn status_get_api() -> impl Responder {
     HttpResponse::Ok()
         .content_type(ContentType::json())
         .body(response)
-}
-
-//https://www.anycodings.com/1questions/2410879/using-serdejson-to-serialise-maps-with-non-string-keys
-
-#[cfg(target_os = "linux")]
-pub fn check_whether_key(mem: &Memory, key: &str) -> String {
-    let d = match mem.platform_memory.meminfo.get(key) {
-        Some(active) => active.to_string(),
-        _ => "".to_string(),
-    };
-    return d;
 }

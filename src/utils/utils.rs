@@ -1,3 +1,5 @@
+use systemstat::Memory;
+
 use crate::stats::{CPUDetails, CPUUsageDef};
 use crate::stats::{Loadavg, MemoryRef, PlatformMemoryDef};
 
@@ -9,26 +11,6 @@ pub fn get_load(one: f32, five: f32, fifteen: f32) -> Loadavg {
     Loadavg { one, five, fifteen }
 }
 
-#[cfg(target_os = "macos")]
-pub fn get_empty_platform_memory() -> PlatformMemoryDef {
-    #[cfg(target_os = "macos")]
-    PlatformMemoryDef {
-        total: "".to_string(),
-        active: "".to_string(),
-        inactive: "".to_string(),
-        wired: "".to_string(),
-        free: "".to_string(),
-        purgeable: "".to_string(),
-        speculative: "".to_string(),
-        compressor: "".to_string(),
-        throttled: "".to_string(),
-        external: "".to_string(),
-        internal: "".to_string(),
-        uncompressed_in_compressor: "".to_string(),
-    }
-}
-
-#[cfg(target_os = "linux")]
 pub fn get_empty_platform_memory() -> PlatformMemoryDef {
     PlatformMemoryDef {
         active: "".to_string(),
@@ -81,17 +63,6 @@ pub fn get_empty_platform_memory() -> PlatformMemoryDef {
     }
 }
 
-#[cfg(target_os = "macos")]
-pub fn get_empty_memory_usage() -> MemoryRef {
-    #[cfg(target_os = "macos")]
-    MemoryRef {
-        total: "".to_string(),
-        free: "".to_string(),
-        platform_memory: get_empty_platform_memory(),
-    }
-}
-
-#[cfg(target_os = "linux")]
 pub fn get_empty_memory_usage() -> MemoryRef {
     MemoryRef {
         total: "".to_string(),
@@ -110,5 +81,12 @@ pub fn get_empty_cpu_details() -> CPUDetails {
             idle: 0.0,
         },
         cpu_temp: 0.0,
+    }
+}
+
+pub fn has_key(mem: &Memory, key: &str) -> String {
+    match mem.platform_memory.meminfo.get(key) {
+        Some(active) => active.to_string(),
+        _ => "".to_string(),
     }
 }

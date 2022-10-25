@@ -27,24 +27,6 @@ pub struct Loadavg {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-#[cfg(target_os = "macos")]
-pub struct PlatformMemoryDef {
-    pub total: String,
-    pub active: String,
-    pub inactive: String,
-    pub wired: String,
-    pub free: String,
-    pub purgeable: String,
-    pub speculative: String,
-    pub compressor: String,
-    pub throttled: String,
-    pub external: String,
-    pub internal: String,
-    pub uncompressed_in_compressor: String,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-#[cfg(target_os = "linux")]
 pub struct PlatformMemoryDef {
     pub active: String,
     pub active_anon: String,
