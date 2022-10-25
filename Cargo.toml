@@ -48,5 +48,6 @@ actix-web-lab = "0.18.2" # https://crates.io/crates/actix-web-lab
 systemstat = "0.2.0"
 
 nats = "0.23.0" #https://github.com/nats-io/nats.rs
-kafka = "0.9" #https://github.com/kafka-rust/kafka-rust
+#kafka = "0.9" #https://github.com/kafka-rust/kafka-rust
+rdkafka = { version = "0.25", features = ["cmake-build"] } #https://github.com/fede1024/rust-rdkafka
 
